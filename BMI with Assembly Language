@@ -1,0 +1,251 @@
+.model small
+.stack 100
+.data
+strStart db "**** BMI Calculator Program ****$"  
+strHeight db "Enter Height in Meters: $" 
+strWeight db "Enter Weight in KGs: $"  
+
+strBMI db "Your BMI is:$"
+strBMIStatus db  "BMI Status: $"
+
+strBMIStat1 db "Severe Thinnes$"    
+strBMIStat2 db "Mild Thinnes$"
+strBMIStat3 db "Normal$"    
+strBMIStat4 db "Overweight$" 
+strBMIStat5 db "Obese$" 
+
+strBMIRange1 db "BMI < 17 $"
+strBMIRange2 db "17 < BMI < 19 $"
+strBMIRange3 db "19 < BMI < 25 $"
+strBMIRange4 db "25 < BMI < 30 $"
+strBMIRange5 db "BMI > 30 $"
+
+
+result dw ?
+
+.code
+main proc
+    mov ax,@data
+    mov ds,ax 
+    
+    jmp start 
+    
+       
+    newLineProc:            ;procedure for printing new line 
+    mov ah,02
+    mov dl,0dh
+    int 21h
+    mov dl,0ah
+    int 21h
+    ret
+         
+start: 
+    
+    lea dx,strStart             ;printing welcome message
+    mov ah,09
+    int 21h
+    
+    
+    call newLineProc           ;printing new line
+   
+    lea dx,strHeight
+    mov ah,09
+    int 21h
+    
+    mov result,0
+    mov ax,0
+    mov bx,0
+    mov cx,0
+    mov dx,0
+
+heightInput:            ; taking height from user
+    
+    and ax,000fh
+    push ax
+    mov ax,10
+    mul bx
+    mov bx,ax
+    pop ax
+    add bx,ax
+    
+    mov ah,01
+    int 21h
+    
+    cmp al,13
+    je nextStep
+    
+    jmp heightInput        
+
+nextStep:               ; for weight
+    
+    call newLineProc    
+    lea dx,strWeight
+    mov ah,09
+    int 21h
+    
+    mov result,bx
+    mov ax,bx
+    mul result
+    mov ax,0
+    mov bx,0
+
+weightInput:               ;taking weight from user
+    
+    and ax,000fh
+    push ax
+    mov ax,10
+    mul bx
+    mov bx,ax
+    pop ax
+    add bx,ax
+    
+    mov ah,01
+    int 21h
+    
+    cmp al,13
+    je comparison    
+    jmp weightInput 
+
+comparison:                 ;after calculation the comparison  
+                            ;to check in which range this
+    mov ax,result           ;BMI is
+    mov dx,0
+    div bx
+   
+  
+    
+    cmp ax,1
+    je obese
+    
+    cmp ax,2
+    je overweight
+    
+    cmp ax,3
+    je normal
+    
+    cmp ax,4
+    je mildThin
+    
+    cmp ax,5
+    jge severeThin
+    
+obese:
+    
+    
+    
+    call newLineProc
+    
+    lea dx,strBMIRange5
+    mov ah,09
+    int 21h
+    
+    call newLineProc
+      
+    
+    lea dx,strBMIStatus
+    mov ah,09
+    int 21h
+    
+    lea dx,strBMIStat5
+    mov ah,09
+    int 21h 
+    
+    call newLineProc    
+    jmp exit  
+    
+overweight:    
+    
+    call newLineProc
+    
+    lea dx,strBMIRange4
+    mov ah,09
+    int 21h
+    
+    call newLineProc     
+    call newLineProc  
+    
+    lea dx,strBMIStatus
+    mov ah,09
+    int 21h
+    
+    lea dx,strBMIStat4
+    mov ah,09
+    int 21h 
+    
+    call newLineProc    
+    jmp exit    
+    
+normal:
+    call newLineProc
+    call newLineProc
+    
+    lea dx,strBMIRange3
+    mov ah,09
+    int 21h
+    
+    call newLineProc
+    call newLineProc  
+    
+    lea dx,strBMIStatus
+    mov ah,09
+        int 21h
+    
+    lea dx,strBMIStat3
+    mov ah,09
+    int 21h 
+    
+    call newLineProc    
+    jmp exit    
+
+mildThin:
+    call newLineProc
+    call newLineProc
+    
+    lea dx,strBMIRange2
+    mov ah,09
+    int 21h
+    
+    call newLineProc    
+    call newLineProc  
+    
+    lea dx,strBMIStatus
+    mov ah,09
+    int 21h
+    
+    lea dx,strBMIStat2
+    mov ah,09
+    int 21h 
+    
+    call newLineProc    
+    jmp exit   
+              
+severeThin:
+    call newLineProc    
+    call newLineProc
+    
+    lea dx,strBMIRange1
+    mov ah,09
+    int 21h
+    
+    call newLineProc    
+    call newLineProc  
+    
+    lea dx,strBMIStatus
+    mov ah,09
+    int 21h
+    
+    lea dx,strBMIStat1
+    mov ah,09
+    int 21h 
+    
+    call newLineProc    
+    jmp exit   
+                  
+
+    exit:
+    
+    call newLineProc
+    mov ah,4ch
+    int 21h
+main endp
+end main
