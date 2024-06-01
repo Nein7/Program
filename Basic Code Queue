@@ -1,0 +1,141 @@
+import os
+from tabulate import tabulate
+
+
+class Shoe:
+    def __init__(self, name, size, brand):
+        self.name = name
+        self.size = size
+        self.brand = brand
+
+
+class Queue:
+    def __init__(self, size):
+        self.__max_size = size
+        self.elements = [None] * self.__max_size
+        self.front = 0
+        self.rear = -1
+        self.length = 0
+
+    def isFull(self):
+        return self.length == self.__max_size
+
+    def isEmpty(self):
+        return self.length == 0
+
+    def getLength(self):
+        return self.length
+
+    def enqueue(self, shoe):
+        if self.isFull():
+            return "Queue is full"
+        self.rear = (self.rear + 1) % self.__max_size
+        self.length += 1
+        self.elements[self.rear] = shoe
+        return "Data inserted into Queue."
+
+    def dequeue(self):
+        if self.isEmpty():
+            return "Queue is empty"
+        item = self.elements[self.front]
+        self.elements[self.front] = None
+        self.front = (self.front + 1) % self.__max_size
+        self.length -= 1
+        return item.name + ", " + str(item.size) + ", " + item.brand
+
+    def displayQueue(self):
+        header = ("S.no", "Name", "Size", "Brand")
+        data = []
+        print("-" * 105)
+        print("|{:>5s}{:<20}|{:>5s}{:<20}|{:>5s}{:<20s}|{:>5s}{:<20s}|".format(" ", "S.no", " ", "Name", " ", "Size", " ","Brand"))
+        print("-" * 105)
+        for i in range(self.rear + 1):
+            if self.elements[i] is not None:
+                print("|{:>5s}{:<20s}|{:>5s}{:<20s}|{:>5s}{:<20s}|{:>5s}{:<20s}|".format(" ", str(i + 1), " ", self.elements[i].name, " ", str(self.elements[i].size), " ", self.elements[i].brand))
+        print("-" * 105)
+
+
+def inputdata():
+    # enquening new data
+    a = input("masukan nama: ")
+    b = input("masukan ukuran sepatu: ")
+    c = input("masukan Brand sepatu: ")
+    shoe = Shoe(a, b, c)
+    antrian.enqueue(shoe)
+
+
+def updatedata():
+    antrian.displayQueue()
+
+    # updating a item
+    choose = int(input("Enter any index to update: "))
+    if choose - 1 < antrian.getLength():
+        a = input("masukan nama: ")
+        b = input("masukan ukuran sepatu: ")
+        c = input("masukan brand sepatu: ")
+        shoe = Shoe(a, b, c)
+        antrian.elements[choose - 1] = shoe
+
+    else:
+        print("You have chosen a wrong option.")
+
+
+def searchItem():
+    item = input("Enter any keyword to search: ")
+
+    # Searching a data item in queue
+    print("Search results: ")
+    for data in antrian.elements:
+        if data is not None:
+            if item in data.name + str(data.size) + data.brand:
+                print("{}, {}, {}".format(data.name, str(data.size), data.brand))
+
+
+def main():
+    while True:
+        # os.system("cls")
+        print("\nWelcome to shoe retail")
+        print("You can Choose the Option")
+        print("1. masukan data")
+        print("2. Update data")
+        print("3. melihat data antrian")
+        print("4. Hapus antrian")
+        print("5. mencari item")
+        option = input("option:")
+
+        if option == "1":
+            os.system("cls")
+            inputdata()
+
+        elif option == "2":
+            os.system("cls")
+            updatedata()
+
+        elif option == "3":
+            os.system("cls")
+            antrian.displayQueue()
+
+        elif option == "4":
+            os.system("cls")
+            print(antrian.dequeue() + " deleted")
+
+        elif option == "5":
+            os.system("cls")
+            searchItem()
+
+        else:
+            os.system("cls")
+            print("You have chosen a wrong option. Please try again. ")
+
+
+if __name__ == '__main__':
+    antrian = Queue(10)
+
+    # adding dummy data to queue
+    antrian.enqueue(Shoe("golf", 12, "ab"))
+    antrian.enqueue(Shoe("chilli", 11, "bc"))
+    antrian.enqueue(Shoe("apple", 12, "cd"))
+    antrian.enqueue(Shoe("mango", 14, "de"))
+    antrian.enqueue(Shoe("banana", 16, "ef"))
+    main()
+
