@@ -1,6 +1,9 @@
 .model small
 .stack 100
-.data
+.data            
+
+; initializing all variables
+
 strStart db "**** BMI Calculator Program ****$"  
 strHeight db "Enter Height in Meters: $" 
 strWeight db "Enter Weight in KGs: $"  
@@ -8,88 +11,85 @@ strWeight db "Enter Weight in KGs: $"
 strBMI db "Your BMI is:$"
 strBMIStatus db  "BMI Status: $"
 
-strBMIStat1 db "Severe Thinnes$"    
-strBMIStat2 db "Mild Thinnes$"
-strBMIStat3 db "Normal$"    
-strBMIStat4 db "Overweight$" 
-strBMIStat5 db "Obese$" 
+strBMIStat1 db "Underweight / Severe Thinnes$"    
+strBMIStat2 db "Normal$"    
+strBMIStat3 db "Overweight / Obese$" 
+ 
 
-strBMIRange1 db "BMI < 17 $"
-strBMIRange2 db "17 < BMI < 19 $"
-strBMIRange3 db "19 < BMI < 25 $"
-strBMIRange4 db "25 < BMI < 30 $"
-strBMIRange5 db "BMI > 30 $"
+strBMIRange1 db "BMI < 18 $"
+strBMIRange2 db "18.5 < BMI < 25 $"
+strBMIRange3 db "BMI > 25 $"
 
-
+ 
 result dw ?
 
 .code
-main proc
-    mov ax,@data
+main proc      ; main method from where execution starts
+    
+    mov ax,@data     ;these two lines are written to able to use our initialized variables
     mov ds,ax 
     
-    jmp start 
     
-       
-    newLineProc:            ;procedure for printing new line 
-    mov ah,02
-    mov dl,0dh
-    int 21h
-    mov dl,0ah
-    int 21h
-    ret
-         
-start: 
+    ;printing welcome message
     
-    lea dx,strStart             ;printing welcome message
-    mov ah,09
-    int 21h
+    lea dx,strStart      ; lea = load effective address       
+    mov ah,09            ; it loads the address of memory varible (which we created),to print it on screen 
+    int 21h              ; 09= service number to display string
     
     
-    call newLineProc           ;printing new line
-   
-    lea dx,strHeight
-    mov ah,09
+    call newLineProc           ;printing new line by calling the procedure that is created on end
+                               
+    
+    ;printing message to enter the height
+    lea dx,strHeight          
+    mov ah,09        
     int 21h
     
+    ;storing 0 in all registers and our variable to avoid any garbage value
     mov result,0
     mov ax,0
     mov bx,0
     mov cx,0
     mov dx,0
 
-heightInput:            ; taking height from user
-    
+heightInput:            ; label heightInput is for taking height from user
+                        ; all lines are written to take multi-digit(e.g 1.7 or 20 etc) input
     and ax,000fh
-    push ax
-    mov ax,10
+    push ax             ; pushing ax= storing the value of ax in stack
+    mov ax,10           ; stack is temporary memory
     mul bx
     mov bx,ax
-    pop ax
+    pop ax              ; pop = removing from stack 
     add bx,ax
     
-    mov ah,01
+    mov ah,01           ; 01 = service number to get input
     int 21h
     
-    cmp al,13
-    je nextStep
-    
-    jmp heightInput        
+    cmp al,13           ; comparision that if input is ENTER KEY
+    je nextStep         ; if yes jump on the nextStep label otherwise keep taking input
+                        ; je = JUMP EQUAL comparision operator and jump only give value is equal to variable  
+                        
+    jmp heightInput  ; jmp = jump statement, works like goto statement                      
+                     ; it transfers the control to the line on which provided label exists
+                     ; here it jumps on heightInput label and repeats the code
+                     
 
-nextStep:               ; for weight
+nextStep:               
     
-    call newLineProc    
+    call newLineProc
+    
+    ;printing message to enter the weight    
+    
     lea dx,strWeight
     mov ah,09
     int 21h
     
-    mov result,bx
-    mov ax,bx
-    mul result
+    mov result,bx       ; storing the input height in result variable             
+    
     mov ax,0
     mov bx,0
 
-weightInput:               ;taking weight from user
+weightInput:               ; all steps are repeated below for taking weight input from user
     
     and ax,000fh
     push ax
@@ -106,16 +106,18 @@ weightInput:               ;taking weight from user
     je comparison    
     jmp weightInput 
 
-comparison:                 ;after calculation the comparison  
-                            ;to check in which range this
-    mov ax,result           ;BMI is
+comparison:                 
+    ;calculation of BMI
+    mov ax,result           ; in ax there is weight, in bx there is squre of height
     mov dx,0
-    div bx
-   
+    div bx                  ; dividing ax by bx 
+                            ; result will be stored in ax
   
+    ;the comparison is   
+    ;to check in which range this  BMI lies
     
     cmp ax,1
-    je obese
+    je overweight     ; jump accordingly to the BMI
     
     cmp ax,2
     je overweight
@@ -124,18 +126,18 @@ comparison:                 ;after calculation the comparison
     je normal
     
     cmp ax,4
-    je mildThin
+    je thin
     
     cmp ax,5
-    jge severeThin
+    jge thin
     
-obese:
+overweight:     ; label created accroding to the BMI
     
     
-    
+    ; just printing some messages here
     call newLineProc
     
-    lea dx,strBMIRange5
+    lea dx,strBMIRange3
     mov ah,09
     int 21h
     
@@ -146,40 +148,21 @@ obese:
     mov ah,09
     int 21h
     
-    lea dx,strBMIStat5
+    lea dx,strBMIStat3
     mov ah,09
     int 21h 
     
     call newLineProc    
-    jmp exit  
+    jmp exit  ; jump on exit label to finish the program
     
-overweight:    
-    
-    call newLineProc
-    
-    lea dx,strBMIRange4
-    mov ah,09
-    int 21h
-    
-    call newLineProc     
-    call newLineProc  
-    
-    lea dx,strBMIStatus
-    mov ah,09
-    int 21h
-    
-    lea dx,strBMIStat4
-    mov ah,09
-    int 21h 
-    
-    call newLineProc    
-    jmp exit    
+    ; different label but processes is all same is in above
+
     
 normal:
     call newLineProc
     call newLineProc
     
-    lea dx,strBMIRange3
+    lea dx,strBMIRange2
     mov ah,09
     int 21h
     
@@ -190,36 +173,15 @@ normal:
     mov ah,09
         int 21h
     
-    lea dx,strBMIStat3
-    mov ah,09
-    int 21h 
-    
-    call newLineProc    
-    jmp exit    
-
-mildThin:
-    call newLineProc
-    call newLineProc
-    
-    lea dx,strBMIRange2
-    mov ah,09
-    int 21h
-    
-    call newLineProc    
-    call newLineProc  
-    
-    lea dx,strBMIStatus
-    mov ah,09
-    int 21h
-    
     lea dx,strBMIStat2
     mov ah,09
     int 21h 
     
     call newLineProc    
-    jmp exit   
+    jmp exit    
+   
               
-severeThin:
+thin:
     call newLineProc    
     call newLineProc
     
@@ -239,13 +201,22 @@ severeThin:
     int 21h 
     
     call newLineProc    
-    jmp exit   
-                  
-
+    
+    ; exit  label to finish program execution
+    
     exit:
     
     call newLineProc
-    mov ah,4ch
+    mov ah,4ch   
+    int 21h                  
+    ; ends the program
+main endp       
+
+newLineProc proc            ;procedure named newLineProc for printing new line 
+    mov ah,02               ;it is created to avoid writing code of new line again and again
+    mov dl,0dh
     int 21h
-main endp
-end main
+    mov dl,0ah
+    int 21h
+    ret
+newLineProc endp    
